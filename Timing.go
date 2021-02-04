@@ -12,7 +12,7 @@ type SynchroTimers struct {
 	syncNumber     *int           // счетчик раундов|периодов времени
 	syncSpeed      *int           // действий в раунде|периоде времени
 	actionDuration *time.Duration // длительность 1 действия
-	appCheckTimer  *time.Duration // длительность 1 действия
+	appCheckTimer  *time.Duration // длительность таймера контроля
 	pause          *bool          // индикатор паузы
 }
 
