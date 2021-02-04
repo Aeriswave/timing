@@ -77,7 +77,7 @@ func (t SynchroTimers) Stop() {
 	return
 }
 
-// Sync Запуск обработки событий синхронизации
+// Sync Запуск обработки событий контроля
 func (t SynchroTimers) Sync() {
 	*t.pause = false
 	t.Round()
