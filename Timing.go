@@ -7,13 +7,14 @@ import (
 
 // SynchroTimers Таймеры для отслеживания событий временной синхронизации
 type SynchroTimers struct {
-	roundTimer     *time.Ticker   // таймер синхронизации начала периода|раунда (уведомления о начале)
-	stopTimer      *time.Ticker   // таймер контроля активности приложения
-	syncNumber     *int           // счетчик раундов|периодов времени
-	syncSpeed      *int           // действий в раунде|периоде времени
-	actionDuration *time.Duration // длительность 1 действия
-	appCheckTimer  *time.Duration // длительность таймера контроля
-	pause          *bool          // индикатор паузы
+	roundTimer     *time.Ticker         // таймер синхронизации начала периода|раунда (уведомления о начале)
+	stopTimer      *time.Ticker         // таймер контроля активности приложения
+	syncNumber     *int                 // счетчик раундов|периодов времени
+	syncSpeed      *int                 // действий в раунде|периоде времени
+	actionDuration *time.Duration       // длительность 1 действия
+	appCheckTimer  *time.Duration       // длительность таймера контроля
+	pause          *bool                // индикатор паузы
+	roundDuration  func() time.Duration // продолжительность раунда (вычисляемое значение)
 }
 
 // Clock методы управление таймером
@@ -35,18 +36,23 @@ func main() {
 
 // Init Инициализация
 func Init() Clock {
-	var SyncNum int = 0
-	var SyncSpeed int = 256
+	var syncNum int = 0
+	var syncSpeed int = 256
 	var actionDuration time.Duration = time.Millisecond * 16
 	var appCheckTimer time.Duration = time.Millisecond * 15000
 	var pause bool = true
+	rd := func() time.Duration {
+		rr := time.Duration(actionDuration * time.Duration(syncSpeed))
+		return rr
+	}
 
 	var t1 Clock = SynchroTimers{
-		syncNumber:     &SyncNum,
-		syncSpeed:      &SyncSpeed,
+		syncNumber:     &syncNum,
+		syncSpeed:      &syncSpeed,
 		actionDuration: &actionDuration,
 		appCheckTimer:  &appCheckTimer,
 		pause:          &pause,
+		roundDuration:  rd,
 	}
 
 	return t1
@@ -55,8 +61,7 @@ func Init() Clock {
 // Start Запуск
 func (t SynchroTimers) Start() {
 	t.Pause()
-
-	t.roundTimer = time.NewTicker(t.roundDuration())
+	t.roundTimer = time.NewTicker(t.roundDuration()) // вычисляемое значение
 	t.stopTimer = time.NewTicker(*t.appCheckTimer)
 
 	go t.Sync()
@@ -108,9 +113,4 @@ func (t SynchroTimers) Pause() {
 	*t.pause = true
 
 	return
-}
-
-// roundDuration возвращает продолжительность 1 раунда
-func (t SynchroTimers) roundDuration() time.Duration {
-	return *t.actionDuration * time.Duration(*t.syncSpeed)
 }
