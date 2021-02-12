@@ -17,7 +17,7 @@ type SynchroTimers struct {
 	roundDuration  func() time.Duration // продолжительность раунда (вычисляемое значение)
 }
 
-// Clock методы управление таймером
+// Clock методы управления таймером
 type Clock interface {
 	Start() // Запустить часы
 	Stop()  // Остановить часы
